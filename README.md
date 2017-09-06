@@ -99,20 +99,20 @@ Example: `builds/gitea-1.3-1`
 
 ```
 {
-    'package_name': 'gitea',
-    'package_version': '1.2',
-    'package_release': '1',
+    "package_name": "gitea",
+    "package_version": "1.2",
+    "package_release": "1",
 
-    'distro': 'linux',
-    'arch': 'amd64',
+    "distro": "linux",
+    "arch": "amd64",
 
-    'spec_summary': 'Git with a cup of Tea',
-    'spec_url': 'https://gitea.io/en-us',
-    'spec_source': 'https://dl.gitea.io/gitea/%{pkg_version}/%{pkg_name_ver}-%{distro}-%{distro_arch}',
-    'spec_description': 'The goal of this project is to make the easiest, fastest, and most painless way of setting up a self-hosted Git service',
+    "spec_summary": "Git with a cup of Tea",
+    "spec_url": "https://gitea.io/en-us",
+    "spec_source": "https://dl.gitea.io/gitea/%{pkg_version}/%{pkg_name_ver}-%{distro}-%{distro_arch}",
+    "spec_description": "The goal of this project is to make the easiest, fastest, and most painless way of setting up a self-hosted Git service",
 
-    'username': 'gitea',
-    'groupname': 'gitea',
+    "username": "gitea",
+    "groupname": "gitea",
 }
 ```
 
