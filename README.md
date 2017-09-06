@@ -112,7 +112,7 @@ Example: `builds/gitea-1.3-1`
     "spec_description": "The goal of this project is to make the easiest, fastest, and most painless way of setting up a self-hosted Git service",
 
     "username": "gitea",
-    "groupname": "gitea",
+    "groupname": "gitea"
 }
 ```
 
