@@ -175,11 +175,12 @@ def test_systemd_service_script_exists(host):
     # Assert custom content
     assert gitea_systemd.contains('EnvironmentFile=/etc/default/gitea')
     assert gitea_systemd.contains('User=gitea')
+    assert gitea_systemd.contains('Group=gitea')
     assert gitea_systemd.contains('ExecStart=/opt/gitea/gitea web --port ${GITEA_PORT} --config ${GITEA_CONFIG} --pid ${GITEA_PIDFILE}')
     assert gitea_systemd.contains('ExecReload=/bin/kill -HUP $MAINPID')
     assert gitea_systemd.contains('KillMode=process')
     assert gitea_systemd.contains('Restart=always')
-    assert gitea_systemd.contains('RemainAfterExit=True')
+    assert gitea_systemd.contains('WorkingDirectory=/opt/gitea')
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)

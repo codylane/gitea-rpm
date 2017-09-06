@@ -11,11 +11,12 @@ After=redis.service
 Type=simple
 EnvironmentFile={{ sysconfig_file }}
 User={{ username }}
+Group={{ groupname }}
+WorkingDirectory={{ remote_dir }}
 ExecStart={{ remote_dir }}/gitea web --port ${GITEA_PORT} --config ${GITEA_CONFIG} --pid ${GITEA_PIDFILE}
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 Restart=always
-RemainAfterExit=True
 
 [Install]
 WantedBy=multi-user.target
