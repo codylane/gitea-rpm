@@ -46,9 +46,9 @@ def test_opt_gitea_exists(host):
     root_dir = host.file('/opt/gitea')
 
     assert root_dir.is_directory
-    assert root_dir.user == 'root'
+    assert root_dir.user == 'gitea'
     assert root_dir.group == 'gitea'
-    assert root_dir.mode == 509 # 0775
+    assert root_dir.mode == 448 # 0700
 
     assert host.file('/opt/gitea/gitea').exists
     assert host.file('/opt/gitea/gitea').user == 'root'
@@ -57,7 +57,7 @@ def test_opt_gitea_exists(host):
 
     assert host.file('/opt/gitea/gitea-adm').exists
     assert host.file('/opt/gitea/gitea-adm').user == 'root'
-    assert host.file('/opt/gitea/gitea-adm').group == 'gitea'
+    assert host.file('/opt/gitea/gitea-adm').group == 'root'
     assert host.file('/opt/gitea/gitea-adm').mode == 493 # 0755
 
 

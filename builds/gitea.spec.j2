@@ -98,7 +98,7 @@ find %{buildroot} -name '*.py?' -type f | xargs rm -f
 %endif
 
 %attr(0775, root, {{ groupname }}) %dir /var/run/%{pkg_name}
-%attr(0775, root, {{ groupname }}) %dir %{pkg_root_dir}
+%attr(0700, {{ username }}, {{ groupname }}) %dir %{pkg_root_dir}
 
 %attr(0555, root, {{ groupname }}) %{pkg_root_dir}/%{pkg_name}
 %attr(0755, root, root)            %{pkg_root_dir}/%{pkg_name}-adm
@@ -106,12 +106,11 @@ find %{buildroot} -name '*.py?' -type f | xargs rm -f
 
 %pre
 getent group {{ groupname }} >/dev/null || groupadd -r {{ groupname }}
-getent passwd {{ username }} >/dev/null || useradd -r -g {{ groupname }} -m -d %{pkg_root_dir} -s /bin/bash -c "{{ username }}" {{ username }}
+getent passwd {{ username }} >/dev/null || useradd -r -g {{ groupname }} -d %{pkg_root_dir} -s /bin/bash -c "{{ username }}" {{ username }}
 exit 0
 
 
 %post
-chown -R root:{{ groupname }} %{pkg_root_dir}
 %if %{?rhel} == 7
 /usr/bin/systemctl daemon-reload
 %endif

@@ -163,9 +163,13 @@ def download_gitea_binary(version, distro='linux', arch='amd64'):
 
 
 @task
-def test():
-    '''Run testinfra integration tests'''
-    local('testinfra -vrs')
+def test(debug=False):
+    '''Run testinfra integration tests   [debug=False]'''
+    args = ''
+    if debug:
+        args += '--pdb'
+
+    local('testinfra -vs {}'.format(args))
 
 
 @task
