@@ -81,7 +81,7 @@ Sweet!  We want to build a new RPM for the gitea RPM.  Let's say we are upgradin
 cat > builds/gitea-1.3-1 << EOF
 {
     "package_version": "1.3",
-    "package_release": "1",
+    "package_release": "1"
 }
 EOF
 
