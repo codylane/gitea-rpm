@@ -21,7 +21,7 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 
 %prep
-getent passwd {{ username }} || useradd -s /bin/bash -m -d /home/{{ username }} -c {{ username }}  {{ username }}
+getent passwd {{ username }} || useradd -s /bin/bash -d /home/{{ username }} -c {{ username }}  {{ username }}
 %{__rm} -rf %{pkg_name_ver}
 %{__mkdir_p} %{pkg_name_ver}
 cd %{pkg_name_ver}
@@ -45,14 +45,12 @@ cd %{pkg_name_ver}
 %{__mkdir_p} %{buildroot}%{_initddir}/
 %endif
 
-%{__mkdir_p} %{buildroot}%{_localstatedir}/run/%{pkg_name}
 %{__mkdir_p} %{buildroot}%{_localstatedir}/log/%{pkg_name}
+%{__mkdir_p} %{buildroot}%{_localstatedir}/run/%{pkg_name}
 
 %if %{?rhel} == 7
 %{__mkdir_p} %{buildroot}/usr/lib/systemd/system
 %endif
-
-%{__chown} -R root:{{ groupname }} %{buildroot}%{_localstatedir}/log
 
 %{__cp} %{pkg_name_ver}/%{pkg_name}       %{buildroot}%{pkg_root_dir}/
 %{__cp} %{pkg_name_ver}/%{pkg_name}.conf  %{buildroot}/etc/%{pkg_name}/
@@ -73,9 +71,6 @@ ln -s ../default/%{pkg_name} %{buildroot}%{_sysconfdir}/sysconfig/%{pkg_name}
 
 %{__cp} %{pkg_name_ver}/%{pkg_name}-adm  %{buildroot}%{pkg_root_dir}/%{pkg_name}-adm
 
-%{__chmod} 0555  %{buildroot}%{pkg_root_dir}/%{pkg_name}
-%{__chmod} 0755  %{buildroot}%{pkg_root_dir}/%{pkg_name}-adm
-
 # remove pesky pyc or pyo from rpm
 find %{buildroot} -name '*.py?' -type f | xargs rm -f
 
@@ -95,14 +90,15 @@ find %{buildroot} -name '*.py?' -type f | xargs rm -f
 %attr(0664,root,  {{ groupname }}) %config(noreplace) /etc/%{pkg_name}/%{pkg_name}.conf
 %attr(0664,root,  {{ groupname }}) %config(noreplace) /etc/default/%{pkg_name}
 
+%attr(0775, root, {{ groupname }}) %dir /var/log/%{pkg_name}
 %attr(0775,root,  {{ groupname }}) %dir /etc/%{pkg_name}/
 
 %if %{?rhel} == 7
-/usr/lib/systemd/system/%{pkg_name}.service
+%attr(0644, root, root) /usr/lib/systemd/system/%{pkg_name}.service
 %endif
 
 %attr(0775, root, {{ groupname }}) %dir /var/run/%{pkg_name}
-%attr(0775, root, {{ groupname }}) %dir /var/log/%{pkg_name}
+%attr(0775, root, {{ groupname }}) %dir %{pkg_root_dir}
 
 %attr(0555, root, {{ groupname }}) %{pkg_root_dir}/%{pkg_name}
 %attr(0755, root, root)            %{pkg_root_dir}/%{pkg_name}-adm
@@ -115,7 +111,7 @@ exit 0
 
 
 %post
-chown {{ username }}:{{ groupname }} %{pkg_root_dir}
+chown -R root:{{ groupname }} %{pkg_root_dir}
 %if %{?rhel} == 7
 /usr/bin/systemctl daemon-reload
 %endif

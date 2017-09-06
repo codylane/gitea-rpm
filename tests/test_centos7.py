@@ -35,7 +35,7 @@ def test_gitea_user_exists(host):
     gitea = host.user('gitea')
 
     assert gitea.exists
-    assert gitea.shell == '/sbin/nologin'
+    assert gitea.shell == '/bin/bash'
     assert gitea.gecos == 'gitea'
     assert gitea.home == '/opt/gitea'
     assert gitea.group == 'gitea'
@@ -46,9 +46,9 @@ def test_opt_gitea_exists(host):
     root_dir = host.file('/opt/gitea')
 
     assert root_dir.is_directory
-    assert root_dir.user == 'gitea'
+    assert root_dir.user == 'root'
     assert root_dir.group == 'gitea'
-    assert root_dir.mode == 493 # 0755
+    assert root_dir.mode == 509 # 0775
 
     assert host.file('/opt/gitea/gitea').exists
     assert host.file('/opt/gitea/gitea').user == 'root'
@@ -57,7 +57,7 @@ def test_opt_gitea_exists(host):
 
     assert host.file('/opt/gitea/gitea-adm').exists
     assert host.file('/opt/gitea/gitea-adm').user == 'root'
-    assert host.file('/opt/gitea/gitea-adm').group == 'root'
+    assert host.file('/opt/gitea/gitea-adm').group == 'gitea'
     assert host.file('/opt/gitea/gitea-adm').mode == 493 # 0755
 
 
@@ -105,6 +105,15 @@ def test_etc_default_gitea_exists(host):
     assert etc_default_gitea.group == 'gitea'
     assert etc_default_gitea.mode == 436 # 0664
 
+    # test file content
+    assert etc_default_gitea.contains('GITEA_RUN_USER="gitea"')
+    assert etc_default_gitea.contains('GITEA_BINARY="/opt/gitea/gitea"')
+    assert etc_default_gitea.contains('GITEA_CONFIG="/etc/gitea/gitea.conf"')
+    assert etc_default_gitea.contains('GITEA_PORT="3000"')
+    assert etc_default_gitea.contains('GITEA_LOGFILE="/var/log/gitea/gitea.log"')
+    assert etc_default_gitea.contains('GITEA_PIDFILE="/var/run/gitea/gitea.pid"')
+
+
 @pytest.mark.docker_images(SUT_CENTOS7)
 def test_gitea_adm_status_is_invoked_and_the_service_is_not_running_it_should_return_3(host):
     host.run('/opt/gitea/gitea-adm stop')
@@ -151,6 +160,26 @@ def test_gitea_service_script_can_create_cacerts_into_current_working_directory_
     assert host.file('cert.pem').user == 'root'
     assert host.file('cert.pem').group == 'root'
     assert host.file('cert.pem').mode == 420 # 0644
+
+
+@pytest.mark.docker_images(SUT_CENTOS7)
+def test_systemd_service_script_exists(host):
+    gitea_systemd = host.file('/usr/lib/systemd/system/gitea.service')
+
+    assert gitea_systemd.exists
+    assert gitea_systemd.is_file
+    assert gitea_systemd.user == 'root'
+    assert gitea_systemd.group == 'root'
+    assert gitea_systemd.mode == 420 # 0644
+
+    # Assert custom content
+    assert gitea_systemd.contains('EnvironmentFile=/etc/default/gitea')
+    assert gitea_systemd.contains('User=gitea')
+    assert gitea_systemd.contains('ExecStart=/opt/gitea/gitea web --port ${GITEA_PORT} --config ${GITEA_CONFIG} --pid ${GITEA_PIDFILE}')
+    assert gitea_systemd.contains('ExecReload=/bin/kill -HUP $MAINPID')
+    assert gitea_systemd.contains('KillMode=process')
+    assert gitea_systemd.contains('Restart=always')
+    assert gitea_systemd.contains('RemainAfterExit=True')
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
@@ -220,6 +249,7 @@ def test_uninstall_of_gitea(host):
 
     assert host.file('/etc/gitea/gitea.conf.rpmsave').exists
     assert host.file('/etc/default/gitea.rpmsave').exists is False
+    assert host.file('/usr/lib/systemd/system/gitea.service').exists is False
 
     assert host.file('/opt/gitea').exists
 
