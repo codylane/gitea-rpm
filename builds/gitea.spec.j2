@@ -21,7 +21,7 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %pre
 getent group {{ groupname }} >/dev/null || groupadd -r {{ groupname }}
-getent passwd {{ username }} >/dev/null || useradd -r -g {{ groupname }} -d %{pkg_root_dir} -s /sbin/nologin -c "{{ username }}" {{ username }}
+getent passwd {{ username }} >/dev/null || useradd -r -g {{ groupname }} -d %{pkg_root_dir} -s /bin/bash -c "{{ username }}" {{ username }}
 exit 0
 
 %prep
@@ -138,5 +138,9 @@ exit 0
 
 
 %changelog
+
+* Wed Sep 06 2017 Cody Lane
+- Gitea must run as a user that contains a shell.  Changed gitea shell to /bin/bash
+
 * Thu Aug 31 2017 Cody Lane
 - Initial
