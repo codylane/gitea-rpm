@@ -32,7 +32,7 @@ def test_gitea_user_exists(host):
     gitea = host.user('gitea')
 
     assert gitea.exists
-    assert gitea.shell == '/sbin/nologin'
+    assert gitea.shell == '/bin/bash'
     assert gitea.gecos == 'gitea'
     assert gitea.home == '/opt/gitea'
     assert gitea.group == 'gitea'
@@ -45,7 +45,7 @@ def test_opt_gitea_exists(host):
     assert root_dir.is_directory
     assert root_dir.user == 'gitea'
     assert root_dir.group == 'gitea'
-    assert root_dir.mode == 493 # 0755
+    assert root_dir.mode == 448 # 0700
 
     assert host.file('/opt/gitea/gitea').exists
     assert host.file('/opt/gitea/gitea').user == 'root'
@@ -74,6 +74,14 @@ def test_etc_gitea_conf_exists(host):
     assert gitea_conf.group == 'gitea'
     assert gitea_conf.mode == 436 # 0664
 
+    # test custom content
+    assert gitea_conf.contains('RUN_USER = gitea')
+    assert gitea_conf.contains('SSH_DOMAIN       = localhost')
+    assert gitea_conf.contains('DOMAIN           = localhost')
+    assert gitea_conf.contains('HTTP_PORT        = 3000')
+    assert gitea_conf.contains('ROOT_URL         = http://{}:{}'.format('localhost', 3000))
+    assert gitea_conf.contains('ROOT_PATH = /var/log/gitea')
+
 
 @pytest.mark.docker_images(SUT_CENTOS6)
 def test_etc_default_gitea_exists(host):
@@ -83,6 +91,14 @@ def test_etc_default_gitea_exists(host):
     assert etc_default_gitea.user == 'root'
     assert etc_default_gitea.group == 'gitea'
     assert etc_default_gitea.mode == 436 # 0664
+
+    # test file content
+    assert etc_default_gitea.contains('GITEA_RUN_USER="gitea"')
+    assert etc_default_gitea.contains('GITEA_BINARY="/opt/gitea/gitea"')
+    assert etc_default_gitea.contains('GITEA_CONFIG="/etc/gitea/gitea.conf"')
+    assert etc_default_gitea.contains('GITEA_PORT="3000"')
+    assert etc_default_gitea.contains('GITEA_LOGFILE="/var/log/gitea/gitea.log"')
+    assert etc_default_gitea.contains('GITEA_PIDFILE="/var/run/gitea/gitea.pid"')
 
 
 @pytest.mark.docker_images(SUT_CENTOS6)

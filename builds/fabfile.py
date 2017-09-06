@@ -13,7 +13,9 @@ GITEA_PID_FILE = '/var/run/gitea/gitea.pid'
 GITEA_SYSCONFIG = '/etc/default/gitea'
 GITEA_CONF = '/etc/gitea/gitea.conf'
 GITEA_PORT = '3000'
-GITEA_LOG_FILE = '/var/log/gitea/gitea.log'
+GITEA_LOG_DIR = '/var/log/gitea'
+GITEA_LOG_FILE = os.path.join(GITEA_LOG_DIR, 'gitea.log')
+GITEA_HTTP_PORT = GITEA_PORT
 
 
 DEFAULT_SPEC_DATA = {
@@ -55,7 +57,6 @@ def init():
 @task
 def init_sources():
     local('cp -r /builds/bits/* ~/rpmbuild/SOURCES/')
-    local('cp -r /builds/gitea.conf ~/rpmbuild/SOURCES/')
 
 
 @task
@@ -103,6 +104,17 @@ def init_systemd():
     save_template('~/rpmbuild/SOURCES/gitea.systemd', content)
 
 
+@task
+def init_gitea_config():
+    data = {
+        'username': GITEA_USER,
+        'remote_dir': GITEA_REMOTE_DIR,
+        'http_port': GITEA_HTTP_PORT,
+        'log_dir': GITEA_LOG_DIR,
+    }
+    content = render_template('gitea.conf.j2', **data)
+    save_template('~/rpmbuild/SOURCES/gitea.conf', content)
+
 
 @task
 def build(spec_template=None):
@@ -112,6 +124,7 @@ def build(spec_template=None):
     init_admin_script()
     init_sysconfig()
     init_systemd()
+    init_gitea_config()
 
     host = testinfra.get_host('local://')
     distro = host.system_info.distribution.lower()
