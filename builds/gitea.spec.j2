@@ -1,0 +1,142 @@
+%define pkg_name     {{ package_name }}
+%define pkg_version  {{ package_version }}
+%define pkg_release  {{ package_release }}
+%define distro       {{ distro }}
+%define distro_arch  {{ arch }}
+%define pkg_name_ver %{pkg_name}-%{pkg_version}
+%define pkg_root_dir /opt/%{pkg_name}
+%define _currentdir  %(pwd)
+
+Name: %{pkg_name}
+Version: %{pkg_version}
+Release: %{pkg_release}%{?dist}
+Summary: {{ spec_summary }}
+Group: Applications/Internet
+License: MIT
+URL: {{ spec_url }}
+Source: {{ spec_source }}
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+%description
+{{ spec_description }}
+
+%pre
+getent group {{ groupname }} >/dev/null || groupadd -r {{ groupname }}
+getent passwd {{ username }} >/dev/null || useradd -r -g {{ groupname }} -d %{pkg_root_dir} -s /sbin/nologin -c "{{ username }}" {{ username }}
+exit 0
+
+%prep
+getent passwd {{ username }} || useradd -s /bin/bash -m -d /home/{{ username }} -c {{ username }}  {{ username }}
+%{__rm} -rf %{pkg_name_ver}
+%{__mkdir_p} %{pkg_name_ver}
+cd %{pkg_name_ver}
+%{__cp} %{_sourcedir}/%{pkg_name_ver}-%{distro}-%{distro_arch} %{pkg_name}
+%{__cp} %{_sourcedir}/%{pkg_name}-adm .
+%{__cp} %{_sourcedir}/%{pkg_name}.conf .
+%{__cp} %{_sourcedir}/%{pkg_name}.sysconfig .
+%{__cp} %{_sourcedir}/%{pkg_name}.systemd .
+
+%install
+# Copy files to the right places
+%{__mkdir_p} %{buildroot}%{pkg_root_dir}
+%{__mkdir_p} %{buildroot}/etc/%{pkg_name}
+%{__mkdir_p} %{buildroot}/etc/default
+
+# Copy init files to the right places
+
+%if %{?rhel} == 6
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/sysconfig
+%{__mkdir_p} %{buildroot}%{_initddir}/
+%endif
+
+%{__mkdir_p} %{buildroot}%{_localstatedir}/run/%{pkg_name}
+%{__mkdir_p} %{buildroot}%{_localstatedir}/log/%{pkg_name}
+
+%if %{?rhel} == 7
+%{__mkdir_p} %{buildroot}/usr/lib/systemd/system
+%endif
+
+%{__chown} -R root:{{ groupname }} %{buildroot}%{_localstatedir}/log
+
+%{__cp} %{pkg_name_ver}/%{pkg_name}       %{buildroot}%{pkg_root_dir}/
+%{__cp} %{pkg_name_ver}/%{pkg_name}.conf  %{buildroot}/etc/%{pkg_name}/
+%{__cp} %{pkg_name_ver}/%{pkg_name}.sysconfig  %{buildroot}/etc/default/%{pkg_name}
+
+%{__chmod} 0775  %{buildroot}/etc/%{pkg_name}
+%{__chown} -R root:{{ groupname }} %{buildroot}/etc/%{pkg_name}
+
+%if %{?rhel} == 6
+ln -s ../default/%{pkg_name} %{buildroot}%{_sysconfdir}/sysconfig/%{pkg_name}
+%{__cp} %{pkg_name_ver}/%{pkg_name}-adm  %{buildroot}%{_initddir}/%{pkg_name}
+%{__chmod} +x  %{buildroot}%{_initddir}/%{pkg_name}
+%endif
+
+%if %{?rhel} == 7
+%{__cp} %{pkg_name_ver}/%{pkg_name}.systemd  %{buildroot}/usr/lib/systemd/system/%{pkg_name}.service
+%endif
+
+%{__cp} %{pkg_name_ver}/%{pkg_name}-adm  %{buildroot}%{pkg_root_dir}/%{pkg_name}-adm
+
+%{__chmod} 0555  %{buildroot}%{pkg_root_dir}/%{pkg_name}
+%{__chmod} 0755  %{buildroot}%{pkg_root_dir}/%{pkg_name}-adm
+
+# remove pesky pyc or pyo from rpm
+find %{buildroot} -name '*.py?' -type f | xargs rm -f
+
+%clean
+[ "%{buildroot}" != "/" ] && %{__rm} -rf %{buildroot}
+
+%files
+%defattr(-,root, {{ groupname }})
+
+%if %{?rhel} == 6
+%attr(0755,root,root) /etc/rc.d/init.d/%{pkg_name}
+%attr(0777,root,  {{ groupname }}) %config(noreplace) /etc/sysconfig/%{pkg_name}
+%endif
+
+%attr(0664,root,  {{ groupname }}) %config(noreplace) /etc/%{pkg_name}/%{pkg_name}.conf
+%attr(0664,root,  {{ groupname }}) %config(noreplace) /etc/default/%{pkg_name}
+
+%attr(0775,root,  {{ groupname }}) %dir /etc/%{pkg_name}/
+
+%if %{?rhel} == 7
+/usr/lib/systemd/system/%{pkg_name}.service
+%endif
+
+%attr(0775, root, {{ groupname }}) %dir /var/run/%{pkg_name}
+%attr(0775, root, {{ groupname }}) %dir /var/log/%{pkg_name}
+
+%attr(0555, root, {{ groupname }}) %{pkg_root_dir}/%{pkg_name}
+%attr(0755, root, root)            %{pkg_root_dir}/%{pkg_name}-adm
+
+%post
+chown {{ username }}:{{ groupname }} %{pkg_root_dir}
+%if %{?rhel} == 7
+/usr/bin/systemctl daemon-reload
+%endif
+
+exit 0
+
+%preun
+
+%if %{?rhel} == 6
+if [ "$1" = "0" ]; then
+    /sbin/service %{pkg_name} stop
+fi
+%else
+    %systemd_preun %{pkg_name}.service
+%endif
+
+exit 0
+
+%postun
+
+%if %{?rhel} == 7
+%systemd_postun_with_restart %{pkg_name}.service
+%endif
+
+exit 0
+
+
+%changelog
+* Thu Aug 31 2017 Cody Lane
+- Initial

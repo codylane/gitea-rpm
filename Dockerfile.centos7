@@ -1,0 +1,31 @@
+FROM centos:7
+
+
+RUN yum -y install \
+    epel-release
+
+
+RUN yum -y install \
+    @Development \
+    fabric \
+    python-jinja2 \
+    python-pip \
+    rpm-build \
+    rpmdevtools
+
+
+# Install test library
+RUN pip install testinfra
+
+
+RUN mkdir -p /builds && \
+    rpmdev-setuptree
+
+
+VOLUME [ "/builds" ]
+
+
+COPY entrypoint.sh .
+
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,0 +1,5 @@
+Fabric
+Jinja2
+paramiko
+requests
+testinfra

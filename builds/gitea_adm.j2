@@ -1,0 +1,138 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          gitea
+# Required-Start:    $syslog $network
+# Required-Stop:     $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: A self-hosted Git service written in Go.
+# Description:       A self-hosted Git service written in Go.
+### END INIT INFO
+
+# Author: Cody Lane
+
+PATH="/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin"
+
+[ -e "/etc/profile.d/gitea.sh" ] && . /etc/profile.d/gitea.sh
+
+GITEA_ROOT_DIR="{{ remote_dir }}"
+
+GITEA_BINARY="${GITEA_ROOT_DIR}/gitea"
+GITEA_LOGFILE="{{ remote_dir }}/gitea.log"
+
+GITEA_CONFIG="/etc/gitea.conf"
+GITEA_PORT="3000"
+GITEA_RUN_USER="gitea"
+GITEA_PIDFILE="{{ remote_dir }}/gitea.pid"
+
+
+[ -e "/etc/sysconfig/gitea" ] && . /etc/sysconfig/gitea
+[ -e "/etc/default/gitea" ] && . /etc/default/gitea
+
+[ "$(whoami)" != 'root' ] || [ "$(whoami)" != "${GITEA_RUN_USER}" ]
+if [ $? -ne 0 ]; then
+  echo "You must be (root or gitea) to run this script"
+  exit 0
+fi
+
+function start() {
+
+  local _PID=$(status)
+  local RUN_CMD="(nohup ${GITEA_BINARY} web --config ${GITEA_CONFIG} --port ${GITEA_PORT} --pid ${GITEA_PIDFILE} >> ${GITEA_LOGFILE} 2>&1) &"
+
+  # gitea is already running if we have a PID
+  [ -n "$_PID" ] && return 0
+
+  if [ "$(whoami)" == "root" ]; then
+
+    eval "su - ${GITEA_RUN_USER} -s /bin/bash -c '(echo \"Starting gitea...\" >> ${GITEA_LOGFILE}) &'"
+    eval "su - ${GITEA_RUN_USER} -s /bin/bash -c '${RUN_CMD}'"
+
+  else
+
+    eval "${RUN_CMD}"
+
+  fi
+
+}
+
+
+function status() {
+
+  local _PID=$(pgrep -f 'gitea web')
+  if [ -n "${_PID}" ]; then
+    echo "$_PID"
+    return 0
+  fi
+
+  return 3
+
+}
+
+function stop() {
+
+  local _PID=$(status)
+  local RUN_CMD="(echo \"Stopping gitea pid=${_PID}\" >> ${GITEA_LOGFILE}) &"
+
+  # if no PID then it's already stopped
+  [ -z "$_PID" ] && return 0
+
+  if [ "$(whoami)" == "root" ]; then
+
+    eval "su - ${GITEA_RUN_USER} -s /bin/bash -c '${RUN_CMD}'"
+
+  else
+
+    eval "${RUN_CMD}"
+
+  fi
+
+  # Force stop!
+  rm -f ${GITEA_PIDFILE}
+  kill -9 ${_PID}
+
+}
+
+
+function version() {
+
+  eval "${GITEA_BINARY} --version | sed -e 's/.*\([0-9]\+\.[0-9]\+\.[0-9]*\).*/\1/g'"
+
+}
+
+
+function create-cacert() {
+
+  eval "${GITEA_BINARY} cert --ca --host $(hostname -f),$(hostname -s),gitea"
+
+}
+
+case "$1" in
+
+  start)
+    start
+    ;;
+
+  status)
+    status
+    ;;
+
+  stop)
+    stop
+    ;;
+
+  version)
+    version
+    ;;
+
+  create-cacert)
+    create-cacert
+    ;;
+
+  *)
+    echo "USAGE: ${0} [start|status|stop|version|create-cacert]"
+    ;;
+
+esac
+
+exit $?

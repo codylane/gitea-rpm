@@ -1,0 +1,47 @@
+FROM centos:6
+
+
+RUN yum -y install \
+    epel-release
+
+
+RUN yum -y install \
+    @Development \
+    asciidoc \
+    desktop-file-utils \
+    emacs \
+    expat-devel \
+    fabric \
+    libcurl-devel \
+    openssl-devel \
+    pcre-devel \
+    perl-ExtUtils-MakeMaker \
+    python-jinja2 \
+    python-pip \
+    rpmdevtools \
+    perl \
+    rpm-build \
+    xmlto \
+    zlib-devel
+
+
+# Gitea requires git >= 1.7 so we compile the CentOS 7 version
+RUN rpm -ivh http://vault.centos.org/7.3.1611/os/Source/SPackages/git-1.8.3.1-6.el7_2.1.src.rpm
+
+
+# Installing test library
+RUN pip install \
+    testinfra
+
+
+RUN mkdir -p /builds && \
+    rpmdev-setuptree
+
+
+VOLUME [ "/builds" ]
+
+
+COPY entrypoint.sh .
+
+
+ENTRYPOINT ["/entrypoint.sh"]

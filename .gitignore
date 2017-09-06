@@ -1,0 +1,11 @@
+venv/*
+*.pyc
+*.cache
+
+*/rpms/*
+
+Dockerfile_*-integration-test
+
+gitea-*
+
+TODO
