@@ -17,7 +17,7 @@ initializing the project.
 ./init.sh
 ```
 
-* Now we activate the virtualenv in our shell.  
+* Now we activate the virtualenv in our shell.
 * **NOTE:** All further commands assume that the virtualenv has been activated
 ```
 . venv/bin/activate
@@ -78,6 +78,13 @@ Sweet!  We want to build a new RPM for the gitea RPM.  Let's say we are upgradin
 * Build the RPMs
 
 ```
+cat > builds/gitea-1.3-1 << EOF
+{
+    "package_version": "1.3",
+    "package_release": "1",
+}
+EOF
+
 fab build_rpms:gitea_version=1.3,spec_template=/builds/gitea-1.3-1
 ```
 
