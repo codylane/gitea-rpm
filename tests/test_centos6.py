@@ -74,6 +74,14 @@ def test_etc_gitea_conf_exists(host):
     assert gitea_conf.group == 'gitea'
     assert gitea_conf.mode == 436 # 0664
 
+    # test custom content
+    assert gitea_conf.contains('RUN_USER = gitea')
+    assert gitea_conf.contains('SSH_DOMAIN       = localhost')
+    assert gitea_conf.contains('DOMAIN           = localhost')
+    assert gitea_conf.contains('HTTP_PORT        = 3000')
+    assert gitea_conf.contains('ROOT_URL         = http://{}:{}'.format('localhost', 3000))
+    assert gitea_conf.contains('ROOT_PATH = /var/log/gitea')
+
 
 @pytest.mark.docker_images(SUT_CENTOS6)
 def test_etc_default_gitea_exists(host):
