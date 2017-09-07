@@ -1,7 +1,6 @@
 import testinfra
 import os
 import pytest
-import time
 
 from glob import glob
 
@@ -142,8 +141,9 @@ def test_var_log_gitea_exists(host):
 
 
 @pytest.mark.docker_images(SUT_CENTOS6)
-def test_service_gitea_status_when_not_running_should_return_3(host):
+def test_service_gitea_status_when_not_running_should_return_3(host, wait_for_svc):
     host.run('/etc/init.d/gitea stop')
+    wait_for_svc(host, 'stop', timeout=5)
     gitea = host.run('/etc/init.d/gitea status')
 
     assert gitea.rc == 3
@@ -152,28 +152,30 @@ def test_service_gitea_status_when_not_running_should_return_3(host):
 
 
 @pytest.mark.docker_images(SUT_CENTOS6)
-def test_gitea_service_starts_up_through_etc_initd(host):
+def test_gitea_service_starts_up_through_etc_initd(host, wait_for_svc):
     gitea = host.run('/etc/init.d/gitea start')
-    time.sleep(.3)
+    wait_for_svc(host, 'start', timeout=5)
 
     assert gitea.rc == 0
     assert host.service('gitea').is_running
     assert host.service('gitea').is_enabled is False
 
     gitea = host.run('/etc/init.d/gitea stop')
+    wait_for_svc(host, 'stop', timeout=5)
     assert gitea.rc == 0
 
 
 @pytest.mark.docker_images(SUT_CENTOS6)
-def test_gitea_service_starts_up_via_service_commmand(host):
+def test_gitea_service_starts_up_via_service_commmand(host, wait_for_svc):
     gitea = host.run('/sbin/service gitea start')
-    time.sleep(.3)
+    wait_for_svc(host, 'start', timeout=5)
 
     assert gitea.rc == 0
     assert host.service('gitea').is_running
     assert host.service('gitea').is_enabled is False
 
     gitea = host.run('/sbin/service gitea stop')
+    wait_for_svc(host, 'stop', timeout=5)
     assert gitea.rc == 0
 
 
@@ -203,21 +205,23 @@ def test_gitea_service_script_can_create_cacerts_into_current_working_directory_
 
 
 @pytest.mark.docker_images(SUT_CENTOS6)
-def test_gitea_adm_script_can_be_invoked_by_the_gitea_user(host):
+def test_gitea_adm_script_can_be_invoked_by_the_gitea_user(host, wait_for_svc):
     host.run('/opt/gitea/gitea-adm stop')
-    time.sleep(.3)
+    wait_for_svc(host, 'stop', timeout=5)
 
     result = host.run('su - gitea -s /bin/bash -c "/opt/gitea/gitea-adm status"')
     assert result.rc == 3
 
     result = host.run('su - gitea -s /bin/bash -c "/opt/gitea/gitea-adm start"')
-    time.sleep(.3)
+    wait_for_svc(host, 'start', timeout=5)
+
     assert result.rc == 0
     assert host.service('gitea').is_running
     assert host.service('gitea').is_enabled is False
 
     result = host.run('su - gitea -s /bin/bash -c "/opt/gitea/gitea-adm stop"')
-    time.sleep(.3)
+    wait_for_svc(host, 'stop', timeout=5)
+
     assert result.rc == 0
     assert host.service('gitea').is_running is False
     assert host.service('gitea').is_enabled is False

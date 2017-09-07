@@ -298,6 +298,32 @@ def install_rpm(host, request):
     return oncall
 
 
+@pytest.fixture
+def wait_for_svc(host):
+    def oncall(host, status, timeout=5):
+        status_cmd = '/opt/gitea/gitea-adm status'
+        count = 0
+
+        if status == 'start':
+            result = host.run(status_cmd).stdout.strip() == ''
+        else:
+            result = host.run(status_cmd).stdout.strip() != ''
+
+        # minimum of 5 seconds
+        if timeout < 50:
+            timeout *= 10
+
+        while result:
+            if count >= timeout:
+                return False
+            time.sleep(.1)
+            count += 1
+
+        return True
+
+    return oncall
+
+
 def pytest_generate_tests(metafunc):
     if 'host' in metafunc.fixturenames:
         marker = getattr(metafunc.function, 'docker_images', None)

@@ -1,7 +1,6 @@
 import testinfra
 import os
 import pytest
-import time
 
 from glob import glob
 
@@ -123,17 +122,18 @@ def test_etc_default_gitea_exists(host):
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
-def test_gitea_adm_status_is_invoked_and_the_service_is_not_running_it_should_return_3(host):
+def test_gitea_adm_status_is_invoked_and_the_service_is_not_running_it_should_return_3(host, wait_for_svc):
     host.run('/opt/gitea/gitea-adm stop')
+    wait_for_svc(host, 'stop', timeout=5)
     gitea = host.run('/opt/gitea/gitea-adm status')
 
     assert gitea.rc == 3
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
-def test_gitea_service_starts_up_via_gitea_adm_start(host):
+def test_gitea_service_starts_up_via_gitea_adm_start(host, wait_for_svc):
     gitea = host.run('/opt/gitea/gitea-adm start')
-    time.sleep(.3)
+    wait_for_svc(host, 'start', timeout=5)
 
     assert gitea.rc == 0
 
@@ -142,6 +142,7 @@ def test_gitea_service_starts_up_via_gitea_adm_start(host):
     assert gitea.stdout.strip().isdigit() and int(gitea.stdout.strip()) > 0
 
     gitea = host.run('/opt/gitea/gitea-adm stop')
+    wait_for_svc(host, 'stop', timeout=5)
     assert gitea.rc == 0
 
 
@@ -192,15 +193,15 @@ def test_systemd_service_script_exists(host):
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
-def test_gitea_service_will_startup_through_systemd(host):
+def test_gitea_service_will_startup_through_systemd(host, wait_for_svc):
     host.run('systemctl stop gitea')
-    time.sleep(.3)
+    wait_for_svc(host, 'stop', timeout=5)
 
     assert host.service('gitea').is_running is False
     assert host.service('gitea').is_enabled is False
 
     result =  host.run('systemctl start gitea')
-    time.sleep(.5)
+    wait_for_svc(host, 'start', timeout=5)
     assert result.rc == 0
 
     assert host.service('gitea').is_running
@@ -208,12 +209,12 @@ def test_gitea_service_will_startup_through_systemd(host):
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
-def test_gitea_service_will_shutdown_through_systemd(host):
+def test_gitea_service_will_shutdown_through_systemd(host, wait_for_svc):
     host.run('systemctl start gitea')
-    time.sleep(.3)
+    wait_for_svc(host, 'start', timeout=5)
 
     result = host.run('systemctl stop gitea')
-    time.sleep(.3)
+    wait_for_svc(host, 'stop', timeout=5)
     assert result.rc == 0
 
     assert host.service('gitea').is_running is False
@@ -221,22 +222,22 @@ def test_gitea_service_will_shutdown_through_systemd(host):
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
-def test_gitea_adm_script_can_be_invoked_by_the_gitea_user(host):
+def test_gitea_adm_script_can_be_invoked_by_the_gitea_user(host, wait_for_svc):
     host.run('/opt/gitea/gitea-adm stop')
-    time.sleep(.3)
+    wait_for_svc(host, 'stop', timeout=5)
 
     result = host.run('su - gitea -s /bin/bash -c "/opt/gitea/gitea-adm status"')
     assert result.rc == 3
 
     result = host.run('su - gitea -s /bin/bash -c "/opt/gitea/gitea-adm start"')
-    time.sleep(.5)
+    wait_for_svc(host, 'start', timeout=5)
     assert result.rc == 0
 
     result = host.process.filter(user='gitea', comm='gitea')
     assert result
 
     result = host.run('su - gitea -s /bin/bash -c "/opt/gitea/gitea-adm stop"')
-    time.sleep(.5)
+    wait_for_svc(host, 'stop', timeout=5)
     assert result.rc == 0
 
     result = host.process.filter(user='gitea', comm='gitea')
