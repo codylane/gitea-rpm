@@ -38,3 +38,6 @@ else
 fi
 
 pip install -r requirements.txt
+
+fab build:centos6
+fab build:centos7
