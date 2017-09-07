@@ -9,7 +9,8 @@ import testinfra
 import threading
 import time
 
-
+# When patching testinfra just make sure this is after you import testsinfra
+from tests.patches import *
 from six.moves import urllib
 
 
