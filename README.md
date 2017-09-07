@@ -3,6 +3,9 @@
 A tool/process for generating RPMS for Gitea (Git with a cup of tea) for
 Redhat based distros.
 
+[![Build
+Status](https://travis-ci.org/codylane/gitea-rpm.svg?branch=master)](https://travis-ci.org/codylane/gitea-rpm)
+
 
 ## Pre-Conditions
 
