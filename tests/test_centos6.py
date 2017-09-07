@@ -155,10 +155,6 @@ def test_gitea_service_starts_up_through_etc_initd(host, wait_for_svc):
     gitea = host.run('/etc/init.d/gitea start')
     wait_for_svc(host, 'start', timeout=5)
 
-    print 'Status: %s' %(host.run('/etc/init.d/gitea status'))
-    print 'Python version: %s' %(host.run('python -V'))
-    print 'Log : %s' %(host.run('cat /var/log/gitea/*').stdout)
-
     assert gitea.rc == 0
     assert host.service('gitea').is_running
     assert host.service('gitea').is_enabled is False
