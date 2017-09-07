@@ -39,7 +39,7 @@ fi
 
 pip install -r requirements.txt
 
-[ -e builds/rpms/centos/6/x86_64/git-1.8.3*.rpm ] || fab build_git18
-
 fab build:centos6
 fab build:centos7
+
+[ -e builds/rpms/centos/6/x86_64/git-1.8.3*.rpm ] || fab build_git18
