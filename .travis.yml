@@ -1,0 +1,20 @@
+sudo: required
+
+services:
+  - docker
+
+os:
+  - linux
+
+language: python
+python: 2.7
+
+install:
+  - docker version
+  - python -V
+  - pip list
+
+script:
+  - ./init.sh
+  - . venv/bin/activate
+  - fab build_rpms:gitea_version=1.2
