@@ -130,7 +130,9 @@ def clean():
     local('rm -rf {basedir}/builds/bits/*'.format(basedir=BASEDIR))
     local('rm -rf {basedir}/builds/rpms/*'.format(basedir=BASEDIR))
     local('rm -f *.pyc')
-
+    for x in SUPPORTED_DISTROS:
+        local('docker rmi gitea-rpmbuild/{}'.format(x))
+        local('docker rmi gitea-{}-integration-test'.format(x))
 
 @task
 def download_gitea_binary(version, distro='linux', arch='amd64'):
