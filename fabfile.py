@@ -129,7 +129,8 @@ def clean():
     '''Cleanup builds/bits/*, *.pyc.   []'''
     local('rm -rf {basedir}/builds/bits/*'.format(basedir=BASEDIR))
     local('rm -rf {basedir}/builds/rpms/*'.format(basedir=BASEDIR))
-    local('rm -f *.pyc')
+    local('rm -rf {testdir}/rpms'.format(testdir=os.path.join(BASEDIR, 'tests')))
+    local('find . -name "*.pyc" -type f | xargs rm -f')
     for x in SUPPORTED_DISTROS:
         local('docker rmi gitea-rpmbuild/{} || :'.format(x))
         local('docker rmi gitea-{}-integration-test || :'.format(x))

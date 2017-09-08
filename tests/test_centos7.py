@@ -17,6 +17,9 @@ os.chdir(TEST_DIR)
 def test_the_gitea_rpm_installs_cleanly(host, install_rpm):
     install_rpm(host=host, name=['git', INSTALL_GITEA_VERSION])
 
+    assert host.run('rpm -q git --qf "%{VERSION}"').stdout.startswith('1.8')
+    assert host.run('rpm -q gitea --qf "%{VERSION}"').stdout.startswith('1.2')
+
 
 @pytest.mark.docker_images(SUT_CENTOS7)
 def test_etc_sysconfig_gitea_file_does_not_exist(host):

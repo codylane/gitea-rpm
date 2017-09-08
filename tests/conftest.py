@@ -169,7 +169,7 @@ def build_docker_container(image):
 
     if _CACHE[image]['rebuild']:
 
-        local('rsync -a {src}/rpms {tmpdir}'.format(src=BUILDS_DIR, tmpdir=TEST_DIR))
+        local('rsync -a --delete {src}/rpms {tmpdir}'.format(src=BUILDS_DIR, tmpdir=TEST_DIR))
         local('docker build -t {image} -f {df} {build_dir}'.format(image=sut_container_name,
                                                                    df=dockerfile,
                                                                    build_dir=tmpdir,
@@ -274,6 +274,8 @@ def install_rpm(host, request):
             cmd = 'yum install -y {packages}'.format(packages=pkgs)
             result = host.run(cmd)
             assert result.rc == 0, "Unable to Install rpms {}".format(name)
+            for x in name:
+                assert host.package(x).is_installed
             return result
 
         if '-' not in name:
