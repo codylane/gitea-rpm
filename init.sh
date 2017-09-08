@@ -23,19 +23,12 @@ if [ $? -ne 0 ]; then
   [ $? -ne 0 ] && err "Unable to install virtualenv.  Please install by hand then run this again"
 fi
 
-# Check to see if virtualenv exists
-if [ -d "${VIRTUALENV_NAME}" ] && [ -e "${VIRTUALENV_NAME}/bin/activate" ]; then
-  [ "${VIRTUAL_ENV##*/}" != "${VIRTUAL_ENV}" ] && . "${VIRTUALENV_NAME}/bin/activate"
-
-  [ -z "${VIRTUALENV_NAME}" ] && err "Unable to switch to ${VIRTUALENV_NAME}.  Please consult python virtualenv documentation"
-
-
-else
+if [ ! -d "${VIRTUALENV_NAME}" ] && [ ! -e "${VIRTUALENV_NAME}/bin/activate" ]; then
   # virtualenv is not configured yet
   virtualenv ${VIRTUALENV_NAME}
-
-  . "${VIRTUALENV_NAME}/bin/activate"
 fi
+
+. "${VIRTUALENV_NAME}/bin/activate"
 
 pip install -r requirements.txt
 
