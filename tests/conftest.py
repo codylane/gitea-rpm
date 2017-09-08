@@ -23,7 +23,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(TEST_DIR)
 
 
-INSTALL_GITEA_VERSION='gitea-1.2-1.*'
+INSTALL_GITEA_VERSION='gitea-1.2'
 
 GITEA_VERSION='1.2.0'
 
