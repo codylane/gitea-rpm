@@ -15,7 +15,7 @@ os.chdir(TEST_DIR)
 
 @pytest.mark.docker_images(SUT_CENTOS6)
 def test_the_gitea_rpm_installs_cleanly(host, install_rpm):
-	install_rpm(host=host, name=['git-1.8.3.1-6.*', INSTALL_GITEA_VERSION])
+	install_rpm(host=host, name=['git', INSTALL_GITEA_VERSION])
 
 
 @pytest.mark.docker_images(SUT_CENTOS6)
