@@ -6,11 +6,10 @@ import os
 import pytest
 import sys
 import testinfra
-import threading
 import time
 
 # When patching testinfra just make sure this is after you import testsinfra
-from tests.patches import *
+from tests.patches import *  # noqa: F403
 from six.moves import urllib
 
 
@@ -22,13 +21,12 @@ local = testinfra.get_host('local://').check_output
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(TEST_DIR)
 
+INSTALL_GITEA_VERSION = 'gitea-1.3'
 
-INSTALL_GITEA_VERSION='gitea-1.2'
-
-GITEA_VERSION='1.2.0'
+GITEA_VERSION = '1.3.1'
 
 
-BASE_DIR= os.path.realpath(os.path.join(TEST_DIR, os.path.pardir))
+BASE_DIR = os.path.realpath(os.path.join(TEST_DIR, os.path.pardir))
 BUILDS_DIR = os.path.realpath(os.path.join(BASE_DIR, 'builds'))
 
 
@@ -36,8 +34,8 @@ SUT_CENTOS6 = 'gitea-centos6-integration-test'
 SUT_CENTOS7 = 'gitea-centos7-integration-test'
 
 DOCKER_IMAGES = [
-        SUT_CENTOS6,
-        SUT_CENTOS7,
+    SUT_CENTOS6,
+    SUT_CENTOS7,
 ]
 
 TEST_DOCKERFILE = '''

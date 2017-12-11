@@ -1,13 +1,10 @@
 import os
 import pytest
 
-from glob import glob
-
-from tests.conftest import get_os_release
-from tests.conftest import TEST_DIR
-from tests.conftest import INSTALL_GITEA_VERSION
 from tests.conftest import GITEA_VERSION
+from tests.conftest import INSTALL_GITEA_VERSION
 from tests.conftest import SUT_CENTOS7
+from tests.conftest import TEST_DIR
 
 
 os.chdir(TEST_DIR)
@@ -18,7 +15,7 @@ def test_the_gitea_rpm_installs_cleanly(host, install_rpm):
     install_rpm(host=host, name=['git', INSTALL_GITEA_VERSION])
 
     assert host.run('rpm -q git --qf "%{VERSION}"').stdout.startswith('1.8')
-    assert host.run('rpm -q gitea --qf "%{VERSION}"').stdout.startswith('1.2')
+    assert host.run('rpm -q gitea --qf "%{VERSION}"').stdout.startswith('1.3')
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
@@ -49,17 +46,17 @@ def test_opt_gitea_exists(host):
     assert root_dir.is_directory
     assert root_dir.user == 'gitea'
     assert root_dir.group == 'gitea'
-    assert root_dir.mode == 448 # 0700
+    assert root_dir.mode == 448  # 0700
 
     assert host.file('/opt/gitea/gitea').exists
     assert host.file('/opt/gitea/gitea').user == 'root'
     assert host.file('/opt/gitea/gitea').group == 'gitea'
-    assert host.file('/opt/gitea/gitea').mode == 365 # 0555
+    assert host.file('/opt/gitea/gitea').mode == 365  # 0555
 
     assert host.file('/opt/gitea/gitea-adm').exists
     assert host.file('/opt/gitea/gitea-adm').user == 'root'
     assert host.file('/opt/gitea/gitea-adm').group == 'root'
-    assert host.file('/opt/gitea/gitea-adm').mode == 493 # 0755
+    assert host.file('/opt/gitea/gitea-adm').mode == 493  # 0755
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
@@ -69,14 +66,14 @@ def test_etc_gitea_gitea_conf_exists(host):
     assert etc_gitea.is_directory
     assert etc_gitea.user == 'root'
     assert etc_gitea.group == 'gitea'
-    assert etc_gitea.mode == 509 # 0775
+    assert etc_gitea.mode == 509  # 0775
 
     gitea_conf = host.file('/etc/gitea/gitea.conf')
 
     assert gitea_conf.exists
     assert gitea_conf.user == 'root'
     assert gitea_conf.group == 'gitea'
-    assert gitea_conf.mode == 436 # 0664
+    assert gitea_conf.mode == 436  # 0664
 
     # test custom content
     assert gitea_conf.contains('RUN_USER = gitea')
@@ -93,7 +90,7 @@ def test_var_run_gitea_exists(host):
     assert var_run.exists
     assert var_run.user == 'root'
     assert var_run.group == 'gitea'
-    assert var_run.mode == 509 # 0775
+    assert var_run.mode == 509  # 0775
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
@@ -102,7 +99,7 @@ def test_var_log_gitea_exists(host):
     assert var_run.exists
     assert var_run.user == 'root'
     assert var_run.group == 'gitea'
-    assert var_run.mode == 509 # 0775
+    assert var_run.mode == 509  # 0775
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
@@ -112,7 +109,7 @@ def test_etc_default_gitea_exists(host):
     assert etc_default_gitea.exists
     assert etc_default_gitea.user == 'root'
     assert etc_default_gitea.group == 'gitea'
-    assert etc_default_gitea.mode == 436 # 0664
+    assert etc_default_gitea.mode == 436  # 0664
 
     # test file content
     assert etc_default_gitea.contains('GITEA_RUN_USER="gitea"')
@@ -165,12 +162,12 @@ def test_gitea_service_script_can_create_cacerts_into_current_working_directory_
     assert host.file('key.pem').exists
     assert host.file('key.pem').user == 'root'
     assert host.file('key.pem').group == 'root'
-    assert host.file('key.pem').mode == 384 # 0600
+    assert host.file('key.pem').mode == 384  # 0600
 
     assert host.file('cert.pem').exists
     assert host.file('cert.pem').user == 'root'
     assert host.file('cert.pem').group == 'root'
-    assert host.file('cert.pem').mode == 420 # 0644
+    assert host.file('cert.pem').mode == 420  # 0644
 
 
 @pytest.mark.docker_images(SUT_CENTOS7)
@@ -181,7 +178,7 @@ def test_systemd_service_script_exists(host):
     assert gitea_systemd.is_file
     assert gitea_systemd.user == 'root'
     assert gitea_systemd.group == 'root'
-    assert gitea_systemd.mode == 420 # 0644
+    assert gitea_systemd.mode == 420  # 0644
 
     # Assert custom content
     assert gitea_systemd.contains('EnvironmentFile=/etc/default/gitea')
@@ -202,7 +199,7 @@ def test_gitea_service_will_startup_through_systemd(host, wait_for_svc):
     assert host.service('gitea').is_running is False
     assert host.service('gitea').is_enabled is False
 
-    result =  host.run('systemctl start gitea')
+    result = host.run('systemctl start gitea')
     wait_for_svc(host, 'start', timeout=5)
     assert result.rc == 0
 
