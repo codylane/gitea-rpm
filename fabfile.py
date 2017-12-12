@@ -1,9 +1,8 @@
 import hashlib
 import os
 import requests
-import sys
 
-from fabric.api import *
+from fabric.api import *  # noqa: F403
 from fabric.utils import error
 from os import environ as ENV
 
@@ -94,7 +93,7 @@ def build_rpm(distro='centos6', spec_template=''):
 
     args = []
     if spec_template:
-        args.append('spec_template=%s' %(spec_template))
+        args.append('spec_template=%s' % (spec_template))
 
     if args:
         args = ','.join(args)
@@ -115,6 +114,9 @@ def build_rpms(gitea_version, gitea_distro='linux', gitea_arch='amd64', spec_tem
 
     download_gitea_binary(version=gitea_version, distro=gitea_distro, arch=gitea_arch)
 
+    build(distro='centos6')
+    build(distro='centos7')
+
     if build_git:
         build_git18(distro='centos6')
 
@@ -123,6 +125,7 @@ def build_rpms(gitea_version, gitea_distro='linux', gitea_arch='amd64', spec_tem
 
     if run_tests:
         test()
+
 
 @task
 def clean():
@@ -134,6 +137,7 @@ def clean():
     for x in SUPPORTED_DISTROS:
         local('docker rmi gitea-rpmbuild/{} || :'.format(x))
         local('docker rmi gitea-{}-integration-test || :'.format(x))
+
 
 @task
 def download_gitea_binary(version, distro='linux', arch='amd64'):
@@ -148,8 +152,8 @@ def download_gitea_binary(version, distro='linux', arch='amd64'):
     local('mkdir -p {basedir}/builds/bits'.format(basedir=BASEDIR))
 
     bin_fname = "{basedir}/builds/bits/{filename}".format(basedir=BASEDIR,
-                                                     filename='gitea-{}-{}-{}'.format(version, distro, arch)
-                                                     )
+                                                          filename='gitea-{}-{}-{}'.format(version, distro, arch)
+                                                          )
     sha256_fname = bin_fname + '.sha256'
 
     binary_sha256 = GET_HTTP(url_sha256, sha256_fname)
@@ -158,7 +162,7 @@ def download_gitea_binary(version, distro='linux', arch='amd64'):
     if validate_checksum(expected_cksum, bin_fname):
         return
 
-    binary = GET_HTTP(url, bin_fname)
+    GET_HTTP(url, bin_fname)
     if validate_checksum(expected_cksum, bin_fname):
         return
 
@@ -172,7 +176,7 @@ def test(debug=False):
     if debug:
         args += '--pdb'
 
-    local('testinfra -vs {}'.format(args))
+    local('py.test -vs {}'.format(args))
 
 
 @task
