@@ -1,5 +1,6 @@
-Fabric
-Jinja2
-paramiko
-requests
-testinfra
+Fabric==1.14.0
+hacking==1.0.0
+Jinja2==2.10
+paramiko==2.4.0
+requests==2.18.4
+testinfra==1.10.1

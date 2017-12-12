@@ -1,5 +1,6 @@
 import testinfra.modules
-from testinfra.modules.service import *
+from testinfra.modules.service import *  # noqa: H303
+
 
 class PatchedService(Service):
 
