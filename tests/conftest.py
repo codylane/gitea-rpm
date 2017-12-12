@@ -220,19 +220,19 @@ initialize_container_fixtures()
 def build_ssh_config(port, docker_id=None, user='root'):
     filename = os.path.join(TEST_DIR, 'ssh_config')
     if docker_id:
-        filename = os.path.join(TEST_DIR, 'ssh_config.%s' %(docker_id))
+        filename = os.path.join(TEST_DIR, 'ssh_config.%s' % (docker_id))
 
     items = [
         'Host *',
         'StrictHostKeyChecking no',
         'UserKnownHostsFile /dev/null',
-        'IdentityFile %s' %(os.path.join(TEST_DIR, 'id_rsa')),
-        'User %s' %(user),
-        'Port %s' %(port),
+        'IdentityFile %s' % (os.path.join(TEST_DIR, 'id_rsa')),
+        'User %s' % (user),
+        'Port %s' % (port),
     ]
     with open(filename, 'w') as fd:
         fd.write('\n'.join(items))
-    os.chmod(filename, 384) # 0600
+    os.chmod(filename, 384)  # 0600
 
     return filename
 
