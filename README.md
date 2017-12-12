@@ -76,10 +76,14 @@ fab build_rpms:gitea_version=1.2,spec_template=/builds/gitea-1.2-2
 ## Building the next release
 Sweet!  We want to build a new RPM for the gitea RPM.  Let's say we are upgrading from `1.2` to `1.3`.  All we need to do is the following.
 
+The best method would be to create a new branch, do the the following changes and then tag the release instead of polluting your repo with `builds/gitea-<version>` stuff.
+
 * We create a new file in `builds/gitea-1.3-1`
 * **[OPTIONAL]** adjust the RPM specfile template as needed.
 * Build the RPMs
 
+
+NOTE: this is optional and sould only be used when building a patch release. A major release should be done in a new branch and then tagged.
 ```
 cat > builds/gitea-1.3-1 << EOF
 {
@@ -90,6 +94,10 @@ EOF
 
 fab build_rpms:gitea_version=1.3,spec_template=/builds/gitea-1.3-1
 ```
+
+* Ensure the tests for each operating system are updated
+* Ensure the the [.travis.yml](.travis.yml) is updated with the new version
+* Ensure the fabfile.py files are updated with the right version
 
 
 ## Available JSON parameters for the RPM spec file
