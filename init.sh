@@ -18,7 +18,7 @@ VIRTUALENV_NAME="venv"
 
 pip show virtualenv >> /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  pip install virtualenv >>/dev/null 2>&1 || sudo pip install virtualenv >>/dev/null 2>&1
+  pip install virtualenv >>/dev/null 2>&1 || pip install virtualenv >>/dev/null 2>&1
 
   [ $? -ne 0 ] && err "Unable to install virtualenv.  Please install by hand then run this again"
 fi
