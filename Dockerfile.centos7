@@ -1,17 +1,17 @@
 FROM centos:7
 
 
-RUN yum -y install \
-    epel-release
-
-
-RUN yum -y install \
-    @Development \
-    fabric \
-    python-jinja2 \
-    python-pip \
-    rpm-build \
-    rpmdevtools
+RUN yum clean all && \
+    yum -y install \
+      epel-release && \
+    yum clean expire-cache && \
+    yum -y install \
+        @Development \
+        fabric \
+        python-jinja2 \
+        python-pip \
+        rpm-build \
+        rpmdevtools
 
 
 # Install test library
