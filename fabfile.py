@@ -69,12 +69,12 @@ def valid_distro(distro, raise_error=True):
 
 def build_rpm_exec(args, distro='centos6'):
     valid_distro(distro)
-    cmd = 'docker run --rm -it --name {name}-{distro} -v {pwd}/builds:/builds {image} {args}'.format(name=CONTAINER_NAME,
-                                                                                                     distro=distro,
-                                                                                                     pwd=os.getcwd(),
-                                                                                                     image=CONTAINER_TAG + '/' + distro,
-                                                                                                     args=args,
-                                                                                                     )
+    cmd = 'docker run --rm --name {name}-{distro} -v {pwd}/builds:/builds {image} {args}'.format(name=CONTAINER_NAME,
+                                                                                                 distro=distro,
+                                                                                                 pwd=os.getcwd(),
+                                                                                                 image=CONTAINER_TAG + '/' + distro,
+                                                                                                 args=args,
+                                                                                                 )
     local(cmd)
 
 
