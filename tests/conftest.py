@@ -23,7 +23,7 @@ os.chdir(TEST_DIR)
 
 INSTALL_GITEA_VERSION = 'gitea-1.3'
 
-GITEA_VERSION = '1.3.1'
+GITEA_VERSION = '1.3.2'
 
 
 BASE_DIR = os.path.realpath(os.path.join(TEST_DIR, os.path.pardir))
