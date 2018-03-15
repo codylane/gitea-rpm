@@ -16,4 +16,4 @@ install:
 
 script:
   - ./init.sh
-  - . venv/bin/activate && fab build_rpms:gitea_version=1.3
+  - . venv/bin/activate && fab build_rpms:gitea_version=1.3.3

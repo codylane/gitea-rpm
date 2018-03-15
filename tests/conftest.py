@@ -21,9 +21,9 @@ local = testinfra.get_host('local://').check_output
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(TEST_DIR)
 
-INSTALL_GITEA_VERSION = 'gitea-1.3'
+INSTALL_GITEA_VERSION = 'gitea-1.3.3'
 
-GITEA_VERSION = '1.3.2'
+GITEA_VERSION = '1.3.3'
 
 
 BASE_DIR = os.path.realpath(os.path.join(TEST_DIR, os.path.pardir))
