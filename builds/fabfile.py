@@ -24,7 +24,7 @@ print(os.getcwd())
 
 DEFAULT_SPEC_DATA = {
     'package_name': 'gitea',
-    'package_version': '1.3.3',
+    'package_version': '1.4.0',
     'package_release': '1',
 
     'distro': 'linux',
