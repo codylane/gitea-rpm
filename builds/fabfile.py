@@ -17,10 +17,14 @@ GITEA_LOG_DIR = '/var/log/gitea'
 GITEA_LOG_FILE = os.path.join(GITEA_LOG_DIR, 'gitea.log')
 GITEA_HTTP_PORT = GITEA_PORT
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(BASE_DIR)
+print(os.getcwd())
+
 
 DEFAULT_SPEC_DATA = {
     'package_name': 'gitea',
-    'package_version': '1.3.3',
+    'package_version': '1.4.0',
     'package_release': '1',
 
     'distro': 'linux',

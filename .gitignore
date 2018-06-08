@@ -6,3 +6,4 @@ Dockerfile_*-integration-test
 gitea-*
 TODO
 .tox/
+.pytest_cache/
